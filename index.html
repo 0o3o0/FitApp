@@ -1,0 +1,556 @@
+<!DOCTYPE html>
+<html dir="rtl" lang="he">
+<head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1" name="viewport"/>
+<title>Jezy Fit</title>
+<link rel="manifest" href="manifest.json"/>
+<style>
+  :root{
+    --bg:#050816;--card:#0b1022;--ink:#e9ecff;--muted:#a5b4fc;
+    --accent:#6ee7b7;--accent2:#60a5fa;--line:rgba(255,255,255,.1);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+       background:radial-gradient(circle at top,#111827 0,#020617 45%,#000 100%);
+       color:var(--ink);line-height:1.6}
+  a{color:var(--accent2);text-decoration:none}
+  a:hover{text-decoration:underline}
+  header{position:sticky;top:0;background:rgba(15,23,42,.9);
+         backdrop-filter:blur(10px);border-bottom:1px solid var(--line);z-index:20}
+  .wrap{max-width:1100px;margin:auto;padding:16px}
+  nav{display:flex;gap:12px;align-items:center;justify-content:space-between;flex-wrap:wrap}
+  .navlinks{display:flex;gap:8px;flex-wrap:wrap}
+  .pill{display:inline-flex;gap:6px;align-items:center;border:1px solid var(--line);
+        border-radius:999px;padding:6px 11px;color:var(--muted);
+        background:rgba(15,23,42,.9);font-size:13px}
+  .btn{display:inline-flex;gap:8px;align-items:center;justify-content:center;border-radius:10px;
+       padding:8px 12px;border:1px solid var(--line);background:linear-gradient(180deg,#1e293b,#020617);
+       color:var(--ink);cursor:pointer;font-size:13px}
+  .btn.primary{background:linear-gradient(180deg,#16a34a,#15803d);border-color:rgba(74,222,128,.7)}
+  .card{background:linear-gradient(180deg,#020617,#020617,#020617);
+        border-radius:14px;border:1px solid var(--line);padding:18px;margin-top:14px;
+        box-shadow:0 18px 45px rgba(15,23,42,.9)}
+  h1{font-size:26px;margin:8px 0 4px}
+  h2{font-size:20px;margin:4px 0 10px}
+  h3{font-size:17px;margin:10px 0 6px;color:#c7d2fe}
+  .muted{color:var(--muted);font-size:14px}
+  .small{color:var(--muted);font-size:12px}
+  .day{scroll-margin-top:88px}
+  ol{padding-left:20px;margin:0}
+  li{margin-bottom:6px}
+  .ex-name{font-weight:600}
+  .cue{display:block;font-size:12px;color:#9ca3af;margin-top:2px}
+  .table{width:100%;border-collapse:collapse;font-size:13px}
+  .table th,.table td{border-bottom:1px dashed var(--line);padding:6px 8px;vertical-align:top}
+  .table th{color:var(--muted);font-weight:600}
+  ul.check{list-style:none;padding:0;margin:0;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px;font-size:13px}
+  @media (max-width:800px){
+    ul.check{grid-template-columns:1fr}
+    nav{flex-direction:column;align-items:flex-start}
+  }
+  ul.check li{background:#020617;border-radius:10px;border:1px solid var(--line);padding:6px 8px;display:flex;gap:8px}
+  label{cursor:pointer}
+
+  .weight-input{
+    width:56px;height:32px;border-radius:8px;
+    border:1px solid #4ade80;background:#020617;color:#e9ecff;
+    margin-inline-start:8px;padding:4px;font-size:12px;text-align:center;
+  }
+  .weight-input:focus{
+    border-color:#22c55e;box-shadow:0 0 0 1px rgba(34,197,94,.4);
+  }
+
+  .week1-label{
+    font-size:11px;
+    color:#9ca3af;
+    margin-inline-start:6px;
+  }
+  .week1-input{
+    width:120px;
+    margin-inline-start:4px;
+    border-radius:8px;
+    border:1px solid #4b5563;
+    background:#020617;
+    color:#e5e7eb;
+    padding:4px 6px;
+    font-size:11px;
+    direction:ltr;
+  }
+  .week1-input:focus{
+    outline:none;
+    border-color:#22c55e;
+    box-shadow:0 0 0 1px rgba(34,197,94,.4);
+  }
+</style>
+</head>
+<body>
+<header>
+<div class="wrap">
+<nav>
+<div class="navlinks">
+<span class="pill">3 אימוני כוח + 2 מוביליטי • מותאם לצוואר</span>
+<a class="pill" href="#sun">א׳</a>
+<a class="pill" href="#mon">ב׳</a>
+<a class="pill" href="#tue">ג׳</a>
+<a class="pill" href="#wed">ד׳</a>
+<a class="pill" href="#thu">ה׳</a>
+<a class="pill" href="#fri">ו׳</a>
+<a class="pill" href="#sat">ש׳</a>
+<a class="pill" href="#groceries">רשימת קניות</a>
+</div>
+<button class="btn primary" id="exportList">ייצוא רשימת קניות</button>
+</nav>
+</div>
+</header>
+<main class="wrap">
+<section class="card">
+<h1>Jezy Fit — תכנית שבועית</h1>
+<p class="muted">
+      מטרה: ירידה קלה בשומן + חזרה למראה “חזק”. התאמות לבקע/בלטים בצוואר: 
+      <strong>אין לחיצות מעל הראש</strong>, אין סקוואט עם מוט על הגב, תנועה נשלטת, צוואר ניטרלי, נשימה רציפה.
+    </p>
+<p class="small">
+      כלל ברזל: אם מופיע כאב חד / נימול / סחרחורת — עוצרים. קל לפני כבד, טכניקה לפני אגו.
+    </p>
+</section>
+
+<section class="card day" id="sun">
+<h2>יום ראשון — אימון כוח #1: חזה + גב + אחורי כתף</h2>
+<ol>
+<li>
+<span class="ex-name">לחיצת חזה במכונה — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=2vH2Kj3WQ8g" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%9C%D7%97%D7%99%D7%A6%D7%AA%20%D7%97%D7%96%D7%94%20%D7%91%D7%9E%D7%9B%D7%95%D7%A0%D7%94%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מושב כך שהידיות בגובה החזה. כתפיים למטה ואחורה, חזה פתוח. דחוף עד כמעט ישר, בלי לנעול מרפקים; שלוט בירידה.</span>
+</li>
+<li>
+<span class="ex-name">לחיצת חזה בדאמבלים, שיפוע קל (עד 30°) — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=8iPEnn-ltC8" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%9C%D7%97%D7%99%D7%A6%D7%AA%20%D7%97%D7%96%D7%94%20%D7%91%D7%93%D7%90%D7%9E%D7%91%D7%9C%D7%99%D7%9D%2C%20%D7%A9%D7%99%D7%A4%D7%95%D7%A2%20%D7%A7%D7%9C%20%28%D7%A2%D7%93%2030%C2%B0%29%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שיפוע נמוך כדי לא להעמיס על צוואר. מרפקים ב־45° מהגוף. להוריד עד גובה חזה בלי שהמשקל יברח אחורה. נשיפה בעלייה.</span>
+</li>
+<li>
+<span class="ex-name">Lat Pulldown (פולי עליון) — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=CAwf7n6Luuc" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Lat%20Pulldown%20%28%D7%A4%D7%95%D7%9C%D7%99%20%D7%A2%D7%9C%D7%99%D7%95%D7%9F%29%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">אחיזה מעט רחבה מהכתפיים. חזה קדימה, משיכה לסנטר/חזה עליון. לא למשוך מאחורי הראש, לא לנדנד את הגב.</span>
+</li>
+<li>
+<span class="ex-name">חתירת כבל ישיבה — 3×10–12</span>
+<a href="https://www.youtube.com/watch?v=GZbfZ033f74" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%97%D7%AA%D7%99%D7%A8%D7%AA%20%D7%9B%D7%91%D7%9C%20%D7%99%D7%A9%D7%99%D7%91%D7%94%20%E2%80%94%203%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">משוך את הידיות לטבור, מרפקים קרובים לגוף. חזה פתוח, צוואר ניטרלי. לעצור שנייה בסוף ולשחרר לאט.</span>
+</li>
+<li>
+<span class="ex-name">Face Pull — 3×12–15</span>
+<a href="https://www.youtube.com/watch?v=rep-qVOkqgk" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Face%20Pull%20%E2%80%94%203%C3%9712%E2%80%9315%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">גובה החבל בערך בגובה הפנים. משוך לעיניים, מרפקים החוצה. סחוט שכמות, ראש לא בורח קדימה.</span>
+</li>
+<li>
+<span class="ex-name">Pushdown (טרייספס בכבל) — 3×10–12</span>
+<a href="https://www.youtube.com/watch?v=vB5OHsJ3EME" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Pushdown%20%28%D7%98%D7%A8%D7%99%D7%99%D7%A1%D7%A4%D7%A1%20%D7%91%D7%9B%D7%91%D7%9C%29%20%E2%80%94%203%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מרפקים צמודים לגוף, לא זזים. לדחוף עד כמעט ישר בלי נעילה חזקה. לא לתת לכתפיים לעלות.</span>
+</li>
+<li>
+<span class="ex-name">Biceps Curl (מוט EZ/דאמבלים) — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=ykJmrZ5v0Oo" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Biceps%20Curl%20%28%D7%9E%D7%95%D7%98%20EZ/%D7%93%D7%90%D7%9E%D7%91%D7%9C%D7%99%D7%9D%29%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">עמידה זקופה, מרפקים לצד הגוף. תנועה חלקה בלי לזרוק את הגב. ירידה איטית שולטת.</span>
+</li>
+<li>
+<span class="ex-name">Plank — 3×30–60 שניות</span>
+<a href="https://www.youtube.com/watch?v=pSHjTRCQxIw" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Plank%20%E2%80%94%203%C3%9730%E2%80%9360%20%D7%A9%D7%A0%D7%99%D7%95%D7%AA%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מרפקים מתחת לכתפיים, בטן וישבן מכווצים. ראש בהמשך לעמוד השדרה, נשימה רגועה.</span>
+</li>
+</ol>
+<h3>תזונת יום ראשון — מתאמן בוקר (עם כמויות)</h3>
+<table class="table">
+<thead><tr><th>זמן</th><th>אפשרויות (בחר אחת)</th></tr></thead>
+<tbody>
+<tr>
+<td><strong>לפני אימון</strong></td>
+<td>½ פיתה מלאה 40ג׳ + 15ג׳ טחינה • בננה 120ג׳ + 10ג׳ שקדים • לחם שיפון 40ג׳ + 10ג׳ חמאת בוטנים • תפוח אדמה מבושל 150ג׳</td>
+</tr>
+<tr>
+<td><strong>אחרי אימון</strong></td>
+<td>חביתה 3 ביצים ≈180ג׳ + טורטיה מלאה 60ג׳ + ירקות 150ג׳ • או טונה 120ג׳ + לחם מלא 80ג׳ + 5ג׳ שמ״ז • או חזה עוף 150ג׳ + אורז 150ג׳ + ירקות 100ג׳</td>
+</tr>
+<tr>
+<td><strong>צהריים</strong></td>
+<td>עוף/פרגית 200ג׳ + אורז/קינואה 150ג׳ + סלט 200ג׳ + 10ג׳ שמ״ז • או סלמון 180ג׳ + בטטה 200ג׳ + ירקות 150ג׳ • או בשר רזה 150ג׳ + אורז 150ג׳ + סלט</td>
+</tr>
+<tr>
+<td><strong>ביניים</strong></td>
+<td>תפוח 150ג׳ + 20ג׳ אגוזים • 2 ביצים קשות 120ג׳ + ירקות 100ג׳ • לחם שיפון 40ג׳ + אבוקדו 25ג׳ • טונה 80ג׳ + ירקות 150ג׳</td>
+</tr>
+<tr>
+<td><strong>ערב</strong></td>
+<td>קוטג׳/גבינה 150ג׳ + פיתה 60ג׳ + ירקות 200ג׳ • או חביתה 2 ביצים + סלט 250ג׳ + 15ג׳ טחינה • או קטניות 150ג׳ + אורז מלא 100ג׳ + סלט</td>
+</tr>
+</tbody>
+</table>
+</section>
+
+<section class="card day" id="mon">
+<h2>יום שני — מוביליטי ומתיחות (פלג גוף עליון &amp; יציבה) • 30–35 דק׳</h2>
+<h3>חימום</h3>
+<ol>
+<li>
+<span class="ex-name">Cat–Cow — 2×10</span>
+<a href="https://www.youtube.com/watch?v=kqnua4rHVVA" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Cat%E2%80%93Cow%20%E2%80%94%202%C3%9710%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">על 4, בתנוחת “שולחן”. בקאט לקמר גב ולהכניס סנטר, בקאו לפתוח חזה בעדינות בלי לזרוק ראש אחורה.</span>
+</li>
+<li>
+<span class="ex-name">סיבובי כתפיים — 2×20</span>
+<a href="https://www.youtube.com/watch?v=z3Hf6Y5LO6M" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%A1%D7%99%D7%91%D7%95%D7%91%D7%99%20%D7%9B%D7%AA%D7%A4%D7%99%D7%99%D7%9D%20%E2%80%94%202%C3%9720%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">עמידה זקופה, סיבובים קדימה/אחורה בטווח נוח. לא לקפוץ בתנועה.</span>
+</li>
+<li>
+<span class="ex-name">Shoulder CARs — 1×5 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=I7dZ0mxR1s4" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Shoulder%20CARs%20%E2%80%94%201%C3%975%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">תנועה איטית של כל טווח הכתף. שאר הגוף נשאר יציב; לווסת טווח לפי נוחות.</span>
+</li>
+</ol>
+<h3>עבודה עיקרית</h3>
+<ol>
+<li>
+<span class="ex-name">Wall Angels — 3×10</span>
+<a href="https://www.youtube.com/watch?v=R7lGQ-9u3V4" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Wall%20Angels%20%E2%80%94%203%C3%9710%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">גב, ישבן וראש נוגעים בקיר. זרועות עולות מלמטה למעלה כמו שלג-מלאך. לא לקמר חזק גב תחתון.</span>
+</li>
+<li>
+<span class="ex-name">Open Book — 2×8 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=5cxX4DX8F90" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Open%20Book%20%E2%80%94%202%C3%978%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה על הצד, ברכיים כפופות. לפתוח את היד העליונה לאחור, מבט עוקב אחרי היד, נשיפה בפתיחה.</span>
+</li>
+<li>
+<span class="ex-name">Thread the Needle — 2×10 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=TbYB3vP5xPQ" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Thread%20the%20Needle%20%E2%80%94%202%C3%9710%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">על 4, להחליק יד מתחת לגוף ולהניח כתף על הרצפה. מתיחה נעימה בשכמות, ללא לחץ בצוואר.</span>
+</li>
+<li>
+<span class="ex-name">Chest Stretch בדלת — 2×30ש׳ לכל צד</span>
+<a href="https://www.youtube.com/watch?v=ajDkwzHq2FQ" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Chest%20Stretch%20%D7%91%D7%93%D7%9C%D7%AA%20%E2%80%94%202%C3%9730%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מרפק בגובה כתף על המשקוף, לסובב את הגוף קדימה עד מתיחה קלה בחזה. צוואר ניטרלי.</span>
+</li>
+<li>
+<span class="ex-name">Chin Tucks — 3×10</span>
+<a href="https://www.youtube.com/watch?v=2Z4nQvZxWqU" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Chin%20Tucks%20%E2%80%94%203%C3%9710%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">ישיבה זקופה, למשוך סנטר קצת פנימה (סנטר כפול קטן). תנועה קטנה, בלי לדחוף אחורה חזק.</span>
+</li>
+<li>
+<span class="ex-name">Scapular Push-Ups — 3×12</span>
+<a href="https://www.youtube.com/watch?v=IqqGdJ0eZ8E" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Scapular%20Push-Ups%20%E2%80%94%203%C3%9712%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">פלאנק על כפות ידיים/ברכיים, מרפקים ישרים. להזיז רק שכמות — לקרב ולהרחיק.</span>
+</li>
+</ol>
+<h3>קירור</h3>
+<ol>
+<li>
+<span class="ex-name">Child’s Pose — 2×40ש׳</span>
+<a href="https://www.youtube.com/watch?v=wsA7PlFzTnI" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Child%E2%80%99s%20Pose%20%E2%80%94%202%C3%9740%D7%A9%D7%B3%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">ישבן לעקבים, ידיים קדימה, נשימות עמוקות. צוואר רפוי.</span>
+</li>
+<li>
+<span class="ex-name">מתיחת צוואר צדית — 2×20ש׳ לכל צד</span>
+<a href="https://www.youtube.com/watch?v=9Vp2As3Zq1Y" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%9E%D7%AA%D7%99%D7%97%D7%AA%20%D7%A6%D7%95%D7%95%D7%90%D7%A8%20%D7%A6%D7%93%D7%99%D7%AA%20%E2%80%94%202%C3%9720%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">משוך בעדינות אוזן לכתף. יד מנוגדת “שוקלת” למטה. לא למשוך חזק.</span>
+</li>
+</ol>
+<p class="small">תזונה ביום שני – אותו עיקרון כמו יום ראשון, רק ללא ארוחת "אחרי אימון" כבדה. אפשר לבחור מארוחות הבוקר/צהריים/ערב.</p>
+</section>
+
+<section class="card day" id="tue">
+<h2>יום שלישי — אימון כוח #2: רגליים + ליבה</h2>
+<ol>
+<li>
+<span class="ex-name">לחיצת רגליים — 4×10–12</span>
+<a href="https://www.youtube.com/watch?v=McoKqgZJm9A" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%9C%D7%97%D7%99%D7%A6%D7%AA%20%D7%A8%D7%92%D7%9C%D7%99%D7%99%D7%9D%20%E2%80%94%204%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מושב כך שהברכיים ב־90° בתחילת התנועה. לדחוף דרך העקבים. לא לנעול ברכיים למעלה, ירידה איטית.</span>
+</li>
+<li>
+<span class="ex-name">סקוואט גביע (Goblet) — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=MeIiIdhvXT4" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%A1%D7%A7%D7%95%D7%95%D7%90%D7%98%20%D7%92%D7%91%D7%99%D7%A2%20%28Goblet%29%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">דאמבל צמוד לחזה, רגליים ברוחב כתפיים. ירידה כמו לשבת על כיסא, חזה פתוח, ברכיים מעל אמצע כף רגל.</span>
+</li>
+<li>
+<span class="ex-name">לאנג׳ים הליכה — 3×8–10 לכל רגל</span>
+<a href="https://www.youtube.com/watch?v=QOVaHwm-Q6U" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%9C%D7%90%D7%A0%D7%92%D7%B3%D7%99%D7%9D%20%D7%94%D7%9C%D7%99%D7%9B%D7%94%20%E2%80%94%203%C3%978%E2%80%9310%20%D7%9C%D7%9B%D7%9C%20%D7%A8%D7%92%D7%9C%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">צעד רחב קדימה, ברך קדמית ב־90°. לא לתת לברך לקרוס פנימה. דחיפה חזרה דרך העקב.</span>
+</li>
+<li>
+<span class="ex-name">Leg Curl — 3×10–12</span>
+<a href="https://www.youtube.com/watch?v=1Tq3QdYUuHs" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Leg%20Curl%20%E2%80%94%203%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">כיפוף ברך מלא בנוחות, ללא ניתוק אגן מהמשטח. ירידה לאט, בלי קפיצה.</span>
+</li>
+<li>
+<span class="ex-name">Hip Thrust — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=LM8XHLYJoYs" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Hip%20Thrust%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכמות על ספסל, כפות רגליים ברוחב אגן. לדחוף אגן למעלה עד קו ישר, סחיטת ישבן, סנטר מעט פנימה.</span>
+</li>
+<li>
+<span class="ex-name">Dead Bug — 3×8–12 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=g_BYB0R-4Ws" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Dead%20Bug%20%E2%80%94%203%C3%978%E2%80%9312%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">גב תחתון דבוק לרצפה. יד ורגל נגדית יורדות לאט, בלי לאבד שליטה במותן.</span>
+</li>
+<li>
+<span class="ex-name">Pallof Press — 3×12–15</span>
+<a href="https://www.youtube.com/watch?v=2r8jL6b5Jxg" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Pallof%20Press%20%E2%80%94%203%C3%9712%E2%80%9315%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">עמידה לצידו של הכבל, ידיים קדימה בקו מרכז הגוף. הגוף רוצה להסתובב – אתה מתנגד.</span>
+</li>
+</ol>
+<h3>תזונת יום שלישי</h3>
+<p class="small">אותו מבנה כמו יום ראשון (לפני אימון, אחרי אימון, צהריים, ביניים, ערב) עם אותן כמויות. תבחר אופציות שונות כדי לא להשתעמם.</p>
+</section>
+
+<section class="card day" id="wed">
+<h2>יום רביעי — מוביליטי ומתיחות (אגן, ירכיים ועמוד שדרה) • 30–35 דק׳</h2>
+<h3>חימום</h3>
+<ol>
+<li>
+<span class="ex-name">Hip Circles — 2×10 לכל רגל</span>
+<a href="https://www.youtube.com/watch?v=tGhl8p5iaRA" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Hip%20Circles%20%E2%80%94%202%C3%9710%20%D7%9C%D7%9B%D7%9C%20%D7%A8%D7%92%D7%9C%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">עמידה על רגל אחת, השנייה מציירת מעגל מהירך. גב זקוף, אפשר להישען לקיר ליציבות.</span>
+</li>
+<li>
+<span class="ex-name">World’s Greatest Stretch — 2×5 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=cJRVVxmytaM" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=World%E2%80%99s%20Greatest%20Stretch%20%E2%80%94%202%C3%975%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">צעד גדול קדימה ללנג׳, ידיים על הרצפה, פתיחת בית חזה וצירוף רוטציה. תנועה איטית לפי נוחות.</span>
+</li>
+</ol>
+<h3>עבודה עיקרית</h3>
+<ol>
+<li>
+<span class="ex-name">90/90 Hips — 2×45ש׳ לכל צד</span>
+<a href="https://www.youtube.com/watch?v=7Qw3JMW1vF8" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=90/90%20Hips%20%E2%80%94%202%C3%9745%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה בישיבה, שתי רגליים ב־90°. גב כמה שיותר זקוף, הטיה קדימה עד מתיחה בישבן/ירך.</span>
+</li>
+<li>
+<span class="ex-name">Hip Flexor Stretch — 2×30ש׳ לכל צד</span>
+<a href="https://www.youtube.com/watch?v=QmJ0RcBzG_k" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Hip%20Flexor%20Stretch%20%E2%80%94%202%C3%9730%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">לנג׳ ברך אחת על הרצפה, אגן נדחף מעט קדימה. לכווץ ישבן אחורי לשמירת גב ניטרלי.</span>
+</li>
+<li>
+<span class="ex-name">Hamstring Stretch עם רצועה — 2×30ש׳ לכל רגל</span>
+<a href="https://www.youtube.com/watch?v=EcH4eUjKq8A" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Hamstring%20Stretch%20%D7%A2%D7%9D%20%D7%A8%D7%A6%D7%95%D7%A2%D7%94%20%E2%80%94%202%C3%9730%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A8%D7%92%D7%9C%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה על הגב, רגל ישרה למעלה, רצועה על כף הרגל. למשוך עד מתיחה נוחה בירך האחורית, לא כאב.</span>
+</li>
+<li>
+<span class="ex-name">Glute Bridge — 3×12</span>
+<a href="https://www.youtube.com/watch?v=wPM8icPu6H8" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Glute%20Bridge%20%E2%80%94%203%C3%9712%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה על הגב, כפות רגליים קרובות לישבן. לדחוף אגן למעלה, סחיטת ישבן, ירידה איטית.</span>
+</li>
+<li>
+<span class="ex-name">Supine Spinal Twist — 2×8 לכל צד</span>
+<a href="https://www.youtube.com/watch?v=2L2lnxIcNmo" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Supine%20Spinal%20Twist%20%E2%80%94%202%C3%978%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה על הגב, ברכיים כפופות, להפיל אותן מצד לצד. תנועה מבוקרת, בלי קפיצה.</span>
+</li>
+</ol>
+<h3>קירור</h3>
+<ol>
+<li>
+<span class="ex-name">Seated Forward Fold — 2×30ש׳</span>
+<a href="https://www.youtube.com/watch?v=Xh7Fj_dzN3Y" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Seated%20Forward%20Fold%20%E2%80%94%202%C3%9730%D7%A9%D7%B3%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">ישיבה עם רגליים ישרות, ירידה קדימה עד מתיחה נוחה בגב/ירך אחורית. לא לכופף צוואר באגרסיביות.</span>
+</li>
+<li>
+<span class="ex-name">Pigeon Pose — 2×30ש׳ לכל צד</span>
+<a href="https://www.youtube.com/watch?v=FVlX5HNKamw" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Pigeon%20Pose%20%E2%80%94%202%C3%9730%D7%A9%D7%B3%20%D7%9C%D7%9B%D7%9C%20%D7%A6%D7%93%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">ברך קדמית כפופה לפנים, רגל שנייה ישרה אחורה. לשמור על מרכז הגוף מעל הירך, לא ליפול הצידה.</span>
+</li>
+<li>
+<span class="ex-name">נשימות סרעפת — 5×10</span>
+<a href="https://www.youtube.com/watch?v=8Tq1U7xZj3E" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=%D7%A0%D7%A9%D7%99%D7%9E%D7%95%D7%AA%20%D7%A1%D7%A8%D7%A2%D7%A4%D7%AA%20%E2%80%94%205%C3%9710%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">שכיבה על הגב, יד על הבטן. לנשום דרך האף, למלא את הבטן ולרוקן לאט.</span>
+</li>
+</ol>
+<p class="small">תזונה ביום רביעי – זהה ליום שני. אפשר להוריד מעט פחמימה אם אתה מרגיש פחות רעב.</p>
+</section>
+
+<section class="card day" id="thu">
+<h2>יום חמישי — אימון כוח #3: ידיים + גב קל</h2>
+<ol>
+<li>
+<span class="ex-name">Chest Supported Row — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=Qe0iZ9C1YkQ" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Chest%20Supported%20Row%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">חזה נתמך על הספסל, רגליים יציבות. למשוך משקל למותן/חלק תחתון של צלעות, סחיטת שכמות, בלי להרים כתפיים.</span>
+</li>
+<li>
+<span class="ex-name">Curl מוט EZ — 3×8–12</span>
+<a href="https://www.youtube.com/watch?v=IYQh0xOZc3o" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Curl%20%D7%9E%D7%95%D7%98%20EZ%20%E2%80%94%203%C3%978%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">עמידה זקופה, מרפקים נשארים לצד הגוף. עלייה חלקה, ירידה איטית. לא להתנדנד.</span>
+</li>
+<li>
+<span class="ex-name">Triceps Pushdown — 3×10–12</span>
+<a href="https://www.youtube.com/watch?v=vB5OHsJ3EME" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Triceps%20Pushdown%20%E2%80%94%203%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">כמו ביום ראשון: מרפקים קבועים, דחיפה עד כמעט ישר, שליטה בחזרה למעלה.</span>
+</li>
+<li>
+<span class="ex-name">Hammer Curl — 2×10–12</span>
+<a href="https://www.youtube.com/watch?v=zC3nLlEvin4" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Hammer%20Curl%20%E2%80%94%202%C3%9710%E2%80%9312%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">אחיזת פטיש (אגודל למעלה). מרפקים צמודים, תנועה חלקה, בלי סיבוב שורש כף יד.</span>
+</li>
+<li>
+<span class="ex-name">Reverse Pec Deck / Face Pull — 3×12–15</span>
+<a href="https://www.youtube.com/watch?v=0G2_XV7slIg" target="_blank">וידאו</a><a href="https://www.youtube.com/results?search_query=Reverse%20Pec%20Deck%20/%20Face%20Pull%20%E2%80%94%203%C3%9712%E2%80%9315%20exercise%20proper%20form" style="margin-right:8px;font-size:11px;" target="_blank">חיפוש ביוטיוב</a>
+<span class="cue">מרפקים בקו הכתפיים, משיכה עד תחושת כיווץ בשכמות ובאחורי כתף. לא להרים כתפיים לאוזניים.</span>
+</li>
+<li>
+<span class="ex-name">הליכה בשיפוע — 10–15 דק׳</span>
+<span class="cue">הליכון בשיפוע קל–בינוני, קצב שמעלה דופק אבל עדיין מאפשר לדבר במשפטים.</span>
+</li>
+</ol>
+<h3>תזונת יום חמישי</h3>
+<p class="small">כמו יום ראשון – תפריט מתאמן בוקר, עם אפשרות לגוון בין האופציות כדי לשמור על עניין.</p>
+</section>
+
+<section class="card day" id="fri">
+<h2>יום שישי — מנוחה / הליכה קלה</h2>
+<p class="muted">
+      20–30 דק׳ הליכה נעימה (לא אינטרוולים). אפשר לשלב Chin Tucks, סיבובי כתפיים ומתיחת חזה קצרה. 
+      תזונה: שמור על אותו סגנון, ארוחה אחת חופשית בשישי/שבת בלי להתפרק מקינוחים ושתייה מתוקה.
+    </p>
+</section>
+
+<section class="card day" id="sat">
+<h2>יום שבת — מנוחה</h2>
+<p class="muted">
+      התאוששות מלאה. מתיחות קלות לפי תחושה, הרבה מים, שינה טובה. 
+      זה היום להרגיש את הגוף, לא לדחוף אותו. להכין בראש את השבוע הבא.
+    </p>
+</section>
+
+<section class="card day" id="groceries">
+<h2>רשימת קניות שבועית</h2>
+<p class="small">סמן מה שקנית ולחץ על “ייצוא רשימת קניות” למעלה כדי להוריד קובץ txt עם מה שחסר.</p>
+<ul class="check" id="list">
+<li><label><input data-name="פיתות מלאות" data-qty="10 יח׳" type="checkbox"/> פיתות מלאות — ~10 יח׳</label></li>
+<li><label><input data-name="טורטיות מלאות" data-qty="8 יח׳" type="checkbox"/> טורטיות מלאות — ~8 יח׳</label></li>
+<li><label><input data-name="אורז בסמטי" data-qty="1 ק״ג" type="checkbox"/> אורז בסמטי — 1 ק״ג</label></li>
+<li><label><input data-name="קינואה" data-qty="500 ג׳" type="checkbox"/> קינואה — 500 ג׳</label></li>
+<li><label><input data-name="שיבולת שועל" data-qty="750 ג׳" type="checkbox"/> שיבולת שועל — 750 ג׳</label></li>
+<li><label><input data-name="חזה עוף" data-qty="1.5 ק״ג" type="checkbox"/> חזה עוף — 1.5 ק״ג</label></li>
+<li><label><input data-name="פרגיות" data-qty="1 ק״ג" type="checkbox"/> פרגיות — 1 ק״ג</label></li>
+<li><label><input data-name="סלמון" data-qty="600 ג׳" type="checkbox"/> סלמון — 600 ג׳</label></li>
+<li><label><input data-name="ביצים" data-qty="24 יח׳" type="checkbox"/> ביצים — 24 יח׳</label></li>
+<li><label><input data-name="טונה במים" data-qty="6 קופסאות" type="checkbox"/> טונה במים — 6 קופסאות</label></li>
+<li><label><input data-name="בשר טחון 10%" data-qty="500 ג׳" type="checkbox"/> בשר טחון רזה 10% — 500 ג׳</label></li>
+<li><label><input data-name="עדשים" data-qty="500 ג׳" type="checkbox"/> עדשים — 500 ג׳</label></li>
+<li><label><input data-name="חומוס יבש/מבושל" data-qty="500 ג׳" type="checkbox"/> חומוס יבש/מבושל — 500 ג׳</label></li>
+<li><label><input data-name="קוטג׳/גבינה קלה" data-qty="2 גביעים" type="checkbox"/> קוטג׳/גבינה קלה — 2 גביעים</label></li>
+<li><label><input data-name="אגוזים/שקדים" data-qty="400 ג׳" type="checkbox"/> אגוזים/שקדים — 400 ג׳</label></li>
+<li><label><input data-name="טחינה גולמית" data-qty="1 צנצנת" type="checkbox"/> טחינה גולמית — 1 צנצנת</label></li>
+<li><label><input data-name="שמן זית" data-qty="750 מ״ל" type="checkbox"/> שמן זית — 750 מ״ל</label></li>
+<li><label><input data-name="אבוקדו" data-qty="6 יח׳" type="checkbox"/> אבוקדו — 6 יח׳</label></li>
+<li><label><input data-name="ירקות לסלט" data-qty="שבועי" type="checkbox"/> ירקות לסלט (עגבניה, מלפפון, פלפל, עלים)</label></li>
+<li><label><input data-name="ירקות קפואים" data-qty="1 ק״ג" type="checkbox"/> ברוקולי/שעועית ירוקה קפוא — ~1 ק״ג</label></li>
+<li><label><input data-name="בטטה" data-qty="1.5 ק״ג" type="checkbox"/> בטטה — 1.5 ק״ג</label></li>
+<li><label><input data-name="פירות" data-qty="שבועי" type="checkbox"/> פירות (בננות/תפוחים/ענבים וכו׳)</label></li>
+<li><label><input data-name="תבלינים" data-qty="לפי צורך" type="checkbox"/> מלח, פלפל, פפריקה, כמון, שום, סומק וכו׳</label></li>
+</ul>
+</section>
+</main>
+
+<script>
+  const btn = document.getElementById('exportList');
+  if (btn){
+    btn.addEventListener('click', ()=>{
+      const checked = [...document.querySelectorAll('#list input:checked')];
+      const lines = checked.map(i => {
+        const name = i.dataset.name || i.parentElement.textContent.trim();
+        const qty = i.dataset.qty ? ' — ' + i.dataset.qty : '';
+        return '• ' + name + qty;
+      });
+      const text = lines.length ? 'רשימת קניות חסר:\n\n' + lines.join('\n') + '\n' : 'לא סימנת כלום, סמן פריטים ואז ייצא 🙂';
+      const blob = new Blob([text], {type:'text/plain;charset=utf-8'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'groceries.txt';
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      URL.revokeObjectURL(url);
+    });
+  }
+
+  function getWeek1Default(text){
+    const t = text.trim();
+    if (t.startsWith('לחיצת חזה במכונה')) return '25 / 27.5 / 27.5';
+    if (t.startsWith('לחיצת חזה בדאמבלים')) return '10 / 10 / 12.5';
+    if (t.startsWith('Lat Pulldown')) return '25 / 25 / 27.5';
+    if (t.startsWith('חתירת כבל ישיבה')) return '25 / 25 / 27.5';
+    if (t.startsWith('Face Pull')) return '15 ק״ג (להעלות חזרות)';
+    if (t.startsWith('Pushdown (טרייספס בכבל)')) return '25 / 25 / 27.5';
+    if (t.startsWith('Biceps Curl')) return '6 ק״ג';
+    if (t.startsWith('Plank')) return '30–45 שניות';
+    if (t.startsWith('לחיצת רגליים')) return '12.5 ק״ג כל צד';
+    if (t.startsWith('סקוואט גביע')) return '8 ק״ג';
+    if (t.startswith('לאנג׳ים הליכה')) return '8 ק״ג כל יד';
+    if (t.startsWith('Leg Curl')) return '22.5 ק״ג';
+    if (t.startswith('Hip Thrust')) return '12.5 ק״ג כל צד';
+    if (t.startswith('Dead Bug')) return '10–12 חזרות';
+    if (t.startswith('Pallof Press')) return '17.5 ק״ג';
+    if (t.startswith('Chest Supported Row')) return '12.5 / 12.5 / 15';
+    if (t.startswith('Curl מוט EZ')) return '6–7 ק״ג';
+    if (t.startswith('Triceps Pushdown')) return '27.5 ק״ג';
+    if (t.startswith('Hammer Curl')) return '12.5 / 12.5 / 15';
+    if (t.startswith('Reverse Pec Deck')) return 'אותו משקל, יותר חזרות';
+    if (t.startswith('הליכה בשיפוע')) return '10–15 דק׳, שיפוע קל–בינוני';
+    return '';
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    const exercises = document.querySelectorAll('.ex-name');
+
+    exercises.forEach(span => {
+      const baseKey = span.textContent.trim().replace(/\s+/g,'_');
+
+      const weightInput = document.createElement('input');
+      weightInput.type='number';
+      weightInput.min='0';
+      weightInput.step='0.5';
+      weightInput.className='weight-input';
+      weightInput.placeholder='ק\"ג';
+      const weightKey='exWeight_'+baseKey;
+      const savedWeight=localStorage.getItem(weightKey);
+      if(savedWeight) weightInput.value=savedWeight;
+      weightInput.addEventListener('input',()=> localStorage.setItem(weightKey,weightInput.value));
+
+      const week1Label = document.createElement('span');
+      week1Label.className = 'week1-label';
+      week1Label.textContent = 'שבוע 1:';
+
+      const week1Input = document.createElement('input');
+      week1Input.type = 'text';
+      week1Input.className = 'week1-input';
+
+      const w1Key = 'exWeek1_'+baseKey;
+      const savedW1 = localStorage.getItem(w1Key);
+      if (savedW1){
+        week1Input.value = savedW1;
+      } else {
+        const def = getWeek1Default(span.textContent);
+        if (def){
+          week1Input.value = def;
+          localStorage.setItem(w1Key, def);
+        }
+      }
+
+      week1Input.addEventListener('input', () => {
+        localStorage.setItem(w1Key, week1Input.value);
+      });
+
+      span.after(week1Input);
+      span.after(week1Label);
+      span.after(weightInput);
+    });
+  });
+</script>
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function () {
+      navigator.serviceWorker.register('sw.js').catch(function (err) {
+        console.log('Service worker registration failed:', err);
+      });
+    });
+  }
+</script>
+</body>
+</html>
